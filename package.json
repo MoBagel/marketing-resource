@@ -1,0 +1,31 @@
+{
+  "name": "marketing-resource",
+  "description": "8ndpoint team marketing stuff.",
+  "version": "0.0.1",
+  "main": "index.js",
+  "dependencies": {
+    "html-styles": "^1.0.0",
+    "isarray": "^1.0.0",
+    "isobject": "^2.1.0",
+    "line-column": "^1.0.2",
+    "ohm-js": "^16.4.0"
+  },
+  "devDependencies": {
+    "@shopify/prettier-plugin-liquid": "^1.0.0",
+    "prettier": "^2.8.1"
+  },
+  "scripts": {
+    "prettier": "prettier",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoBagel/marketing-resource.git"
+  },
+  "author": "",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/MoBagel/marketing-resource/issues"
+  },
+  "homepage": "https://github.com/MoBagel/marketing-resource#readme"
+}
