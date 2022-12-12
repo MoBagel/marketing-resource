@@ -1,452 +1,469 @@
 <script>
-(function () {
-    var gtmCode = ''; // update your GTM code. If you have already initialized GTM. You can ignore it.
+  (function () {
+      var gtmCode = ''; // update your GTM code. If you have already initialized GTM. You can ignore it.
 
-    var cookieExpireDay = 1;
-    // polyfill-queryselector for ie
-    (function () {
-        if (document.querySelectorAll || document.querySelector) {
-            return;
-        }
-        var style;
-        var select = function (selector, maxCount) {
-            var all = document.all,
-              l = all.length,
-              i,
-              resultSet = [];
+      var cookieExpireDay = 1;
+      // polyfill-queryselector for ie
+      (function () {
+          if (document.querySelectorAll || document.querySelector) {
+              return;
+          }
+          var style;
+          var select = function (selector, maxCount) {
+              var all = document.all,
+                l = all.length,
+                i,
+                resultSet = [];
 
-            style.addRule(selector, "foo:bar");
-            for (i = 0; i < l; i += 1) {
-                if (all[i].currentStyle.foo === "bar") {
-                    resultSet.push(all[i]);
-                    if (resultSet.length > maxCount) {
-                        break;
-                    }
-                }
-            }
-            style.removeRule(0);
-            return resultSet;
-        };
-        style = document.createStyleSheet();
+              style.addRule(selector, "foo:bar");
+              for (i = 0; i < l; i += 1) {
+                  if (all[i].currentStyle.foo === "bar") {
+                      resultSet.push(all[i]);
+                      if (resultSet.length > maxCount) {
+                          break;
+                      }
+                  }
+              }
+              style.removeRule(0);
+              return resultSet;
+          };
+          style = document.createStyleSheet();
 
-        document.querySelectorAll = document.body.querySelectorAll = function (selector) {
-            return select(selector, Infinity);
-        };
-        document.querySelector = document.body.querySelector = function (selector) {
-            return select(selector, 1)[0] || null;
-        };
-    }());
-    // polyfill-queryselector end
+          document.querySelectorAll = document.body.querySelectorAll = function (selector) {
+              return select(selector, Infinity);
+          };
+          document.querySelector = document.body.querySelector = function (selector) {
+              return select(selector, 1)[0] || null;
+          };
+      }());
+      // polyfill-queryselector end
 
-    // set cookie function
-    function setCookie(cname, cvalue, exdays) {
-        var d = new Date(); // expire unit * days
-        d.setTime(d.getTime() + ((exdays || cookieExpireDay) * 24 * 60 * 60 * 1000));
-        var expires = "expires=" + d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    }
+      // set cookie function
+      function setCookie(cname, cvalue, exdays) {
+          var d = new Date(); // expire unit * days
+          d.setTime(d.getTime() + ((exdays || cookieExpireDay) * 24 * 60 * 60 * 1000));
+          var expires = "expires=" + d.toUTCString();
+          document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+      }
 
-    // read cookie function
-    function getCookie(cname) {
-        var name = cname + "=";
-        var decodedCookie = decodeURIComponent(document.cookie);
-        var ca = decodedCookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
+      // read cookie function
+      function getCookie(cname) {
+          var name = cname + "=";
+          var decodedCookie = decodeURIComponent(document.cookie);
+          var ca = decodedCookie.split(';');
+          for (var i = 0; i < ca.length; i++) {
+              var c = ca[i];
+              while (c.charAt(0) == ' ') {
+                  c = c.substring(1);
+              }
+              if (c.indexOf(name) == 0) {
+                  return c.substring(name.length, c.length);
+              }
+          }
+          return "";
+      }
 
-    // remove cookie function
-    function eraseCookie(name) {
-        document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    }
+      // remove cookie function
+      function eraseCookie(name) {
+          document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      }
 
-    function selectorClickCallback(nameStringList, callback) {
-        var nameList = nameStringList.split(',')
-        for (var i = 0; i < nameList.length; i++) {
-            var target = nameList[0];
-            var domList = document.querySelectorAll(target);
-            for (var j = 0; j < domList.length; j++) {
-                domList[j].addEventListener("click", function (e) {
-                  callback(e, this);
-                });
-            }
-        }
-    }
+      function selectorClickCallback(nameStringList, callback) {
+          var nameList = nameStringList.split(',')
+          for (var i = 0; i < nameList.length; i++) {
+              var target = nameList[0];
+              var domList = document.querySelectorAll(target);
+              for (var j = 0; j < domList.length; j++) {
+                  domList[j].addEventListener("click", function (e) {
+                    callback(e, this);
+                  });
+              }
+          }
+      }
 
-    // search parameters
-    function getURLParams(name, url) {
-        if (!url) {
-            url = window.location.href;
-        }
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-        if (!results)
-            return null;
-        if (!results[2])
-            return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
-    };
+      // search parameters
+      function getURLParams(name, url) {
+          if (!url) {
+              url = window.location.href;
+          }
+          name = name.replace(/[\[\]]/g, "\\$&");
+          var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+              results = regex.exec(url);
+          if (!results)
+              return null;
+          if (!results[2])
+              return '';
+          return decodeURIComponent(results[2].replace(/\+/g, " "));
+      };
 
-    /**********************
-    * DYNAMIC DEPENDENCIES
-    ***********************/
-    var __DL__ = {
-        dynamicCart: true, // if cart is dynamic (meaning no refresh on cart add) set to true
-        debug: false, // if true, console messages will be displayed
-        cart: null,
-        wishlist: null,
-        removeCart: null
-    };
+      /**********************
+      * DYNAMIC DEPENDENCIES
+      ***********************/
+      var __DL__ = {
+          dynamicCart: true, // if cart is dynamic (meaning no refresh on cart add) set to true
+          debug: false, // if true, console messages will be displayed
+          cart: null,
+          wishlist: null,
+          removeCart: null
+      };
 
-    /* DO NOT EDIT */
-    var defaultBindings = {
-        cartTriggers: ['form[action="/cart/add"] [type="submit"],.add-to-cart,.cart-btn'],
-        removeCartTrigger: ['[href*="/cart/change"]'],
-        searchPage: ['search'],
-        removeWishlist: [],
-        searchTermQuery: [getURLParams('q')], // replace var with correct query
-    };
+      /* DO NOT EDIT */
+      var defaultBindings = {
+          cartTriggers: ['form[action="/cart/add"] [type="submit"],.add-to-cart,.cart-btn'],
+          removeCartTrigger: ["/cart/change"],
+          searchPage: ['search'],
+          removeWishlist: [],
+          searchTermQuery: [getURLParams('q')], // replace var with correct query
+      };
 
-    // stitch bindings
-    function applyBindings(objectArray, outputObject) {
-        for (var x in objectArray) {
-            var key = x;
-            var objs = objectArray[x];
-            values = [];
-            if (objs.length > 0) {
-                values.push(objs);
-                if (key in outputObject) {
-                    values.push(outputObject[key]);
-                    outputObject[key] = values.join(", ");
-                } else {
-                    outputObject[key] = values.join(", ");
-                }
-            }
-        }
-    };
-    applyBindings(defaultBindings, __DL__);
+      // stitch bindings
+      function applyBindings(objectArray, outputObject) {
+          for (var x in objectArray) {
+              var key = x;
+              var objs = objectArray[x];
+              values = [];
+              if (objs.length > 0) {
+                  values.push(objs);
+                  if (key in outputObject) {
+                      values.push(outputObject[key]);
+                      outputObject[key] = values.join(", ");
+                  } else {
+                      outputObject[key] = values.join(", ");
+                  }
+              }
+          }
+      };
+      applyBindings(defaultBindings, __DL__);
 
-    /**********************
-    * Begin dataLayer Build 
-    ***********************/
-    window.dataLayer = window.dataLayer || []; // init data layer if doesn't already exist
-    var template = "{{template}}";
+      /**********************
+      * Begin dataLayer Build
+      ***********************/
+      window.dataLayer = window.dataLayer || []; // init data layer if doesn't already exist
+      var template = "{{template}}";
+      /**
+      * Landing Page Cookie
+      * 1. Detect if user just landed on the site
+      * 2. Only fires if Page Title matches website */
+      var getCookieLandingPage = getCookie('landingPage');
+      if (getCookieLandingPage === undefined || getCookieLandingPage.length === 0) {
+          var landingPage = true;
+          setCookie('landingPage', 'landed')
+      } else {
+          var landingPage = false;
+          eraseCookie('landingPage');
+          setCookie('landingPage', 'refresh');
+      }
+      if (__DL__.debug) {
+          console.log('Landing Page: ' + landingPage);
+      }
+
+      /**
+      * Log State Cookie */
+      {% if customer %}
+      var isLoggedIn = true;
+      {% else %}
+      var isLoggedIn = false;
+      {% endif %}
+
+      // set logState to check user login status
+      if (!isLoggedIn) {
+          eraseCookie('logState');
+          setCookie('logState', 'loggedOut');
+      } else {
+          var getCookieLogState = getCookie('logState');
+          if (getCookieLogState === 'loggedOut' || getCookieLogState === undefined) {
+              eraseCookie('logState');
+              setCookie('logState', 'firstLog');
+          } else if (getCookieLogState === 'firstLog') {
+              eraseCookie('logState');
+              setCookie('logState', 'refresh');
+          }
+      }
+
+      if (getCookie('logState') === 'firstLog') {
+          var firstLog = true;
+      } else {
+          var firstLog = false;
+      }
+
+      /**********************
+      * DATALAYER SECTIONS
+      ***********************/
+      /**
+      * DATALAYER: Landing Page
+      * Fires any time a user first lands on the site. */
+      if (getCookie('landingPage') === 'landed') {
+          dataLayer.push({
+              'pageType': 'Landing',
+              'event': 'first_time_visitor'
+          });
+      }
+
+      /**
+      * DATALAYER: Log State
+      * 1. Determine if user is logged in or not.
+      * 2. Return User specific data. */
+      var logState = {
+          {% if shop.customer_accounts_enabled %}
+          {% if customer %}
+          'userId'        : {{customer.id | json}},
+          'customerEmail' : {{customer.email | json}},
+          'logState'      : "Logged In",
+          'customerInfo'  : {
+              'firstName'   : {{customer_address.first_name | json}},
+              'lastName'    : {{customer_address.last_name | json}},
+              'address1'    : {{customer_address.address1 | json}},
+              'address2'    : {{customer_address.address2 | json}},
+              'street'      : {{customer_address.street | json}},
+              'city'        : {{customer_address.city | json}},
+              'province'    : {{customer_address.province | json}},
+              'zip'         : {{customer_address.zip | json}},
+              'country'     : {{customer_address.country | json}},
+              'phone'       : {{customer_address.phone | json}},
+              'totalOrders' : {{customer.orders_count | json}},
+              'totalSpent'  : {{customer.total_spent | money_without_currency | remove: "," | json}}
+          },
+          {% else %}
+          'logState' : "Logged Out",
+          {% endif %}
+          {% endif %}
+          'firstLog'      : firstLog,
+          'customerEmail' : {{customer.email | json}},
+          'timestamp'     : Date().replace(/\(.*?\)/g,''),
+          {% if customer.orders_count > 2 %}
+          'customerType'       : 'Returning',
+          'customerTypeNumber' : '0',
+          {% else %}
+          'customerType'       : 'New',
+          'customerTypeNumber' :'1',
+          {% endif %}
+          'shippingInfo' : {
+              'fullName'  : {{checkout.shipping_address.name | json}},
+              'firstName' : {{checkout.shipping_address.first_name | json}},
+              'lastName'  : {{checkout.shipping_address.last_name | json}},
+              'address1'  : {{checkout.shipping_address.address1 | json}},
+              'address2'  : {{checkout.shipping_address.address2 | json}},
+              'street'    : {{checkout.shipping_address.street | json}},
+              'city'      : {{checkout.shipping_address.city | json}},
+              'province'  : {{checkout.shipping_address.province | json}},
+              'zip'       : {{checkout.shipping_address.zip | json}},
+              'country'   : {{checkout.shipping_address.country | json}},
+              'phone'     : {{checkout.shipping_address.phone | json}},
+          },
+          'billingInfo' : {
+              'fullName'  : {{checkout.billing_address.name | json}},
+              'firstName' : {{checkout.billing_address.first_name | json}},
+              'lastName'  : {{checkout.billing_address.last_name | json}},
+              'address1'  : {{checkout.billing_address.address1 | json}},
+              'address2'  : {{checkout.billing_address.address2 | json}},
+              'street'    : {{checkout.billing_address.street | json}},
+              'city'      : {{checkout.billing_address.city | json}},
+              'province'  : {{checkout.billing_address.province | json}},
+              'zip'       : {{checkout.billing_address.zip | json}},
+              'country'   : {{checkout.billing_address.country | json}},
+              'phone'     : {{checkout.billing_address.phone | json}},
+          },
+          'checkoutEmail' : {{checkout.email | json}},
+          'currency'      : {{shop.currency | json}},
+          'pageType'      : 'Log State',
+          'event'         : 'logState'
+      }
+
+    dataLayer.push(logState);
+
     /**
-    * Landing Page Cookie
-    * 1. Detect if user just landed on the site
-    * 2. Only fires if Page Title matches website */
-    var getCookieLandingPage = getCookie('landingPage');
-    if (getCookieLandingPage === undefined || getCookieLandingPage.length === 0) {
-        var landingPage = true;
-        setCookie('landingPage', 'landed')
-    } else {
-        var landingPage = false;
-        eraseCookie('landingPage');
-        setCookie('landingPage', 'refresh');
-    }
-    if (__DL__.debug) {
-        console.log('Landing Page: ' + landingPage);
-    }
+    * DATALAYER: Homepage */
 
-    /** 
-    * Log State Cookie */
-    {% if customer %}
-    var isLoggedIn = true;
-    {% else %}
-    var isLoggedIn = false;
-    {% endif %}
-
-    // set logState to check user login status
-    if (!isLoggedIn) {
-        eraseCookie('logState');
-        setCookie('logState', 'loggedOut');
-    } else {
-        var getCookieLogState = getCookie('logState');
-        if (getCookieLogState === 'loggedOut' || getCookieLogState === undefined) {
-            eraseCookie('logState');
-            setCookie('logState', 'firstLog');
-        } else if (getCookieLogState === 'firstLog') {
-            eraseCookie('logState');
-            setCookie('logState', 'refresh');
-        }
-    }
-
-    if (getCookie('logState') === 'firstLog') {
-        var firstLog = true;
-    } else {
-        var firstLog = false;
-    }
-
-    /**********************
-    * DATALAYER SECTIONS 
-    ***********************/
-    /**
-    * DATALAYER: Landing Page
-    * Fires any time a user first lands on the site. */
-    if (getCookie('landingPage') === 'landed') {
-        dataLayer.push({ 
-            'pageType': 'Landing', 
-            'event': 'first_time_visitor' 
+    if (document.location.pathname == "/") {
+        dataLayer.push({
+            'pageType': 'Homepage',
+            'event': 'homepage',
+            logState
         });
     }
 
-    /** 
-    * DATALAYER: Log State
-    * 1. Determine if user is logged in or not.
-    * 2. Return User specific data. */
-    var logState = {
-        {% if shop.customer_accounts_enabled %}
-        {% if customer %}
-        'userId'        : {{customer.id | json}},
-        'customerEmail' : {{customer.email | json}},
-        'logState'      : "Logged In",
-        'customerInfo'  : {
-            'firstName'   : {{customer_address.first_name | json}},
-            'lastName'    : {{customer_address.last_name | json}},
-            'address1'    : {{customer_address.address1 | json}},
-            'address2'    : {{customer_address.address2 | json}},
-            'street'      : {{customer_address.street | json}},
-            'city'        : {{customer_address.city | json}},
-            'province'    : {{customer_address.province | json}},
-            'zip'         : {{customer_address.zip | json}},
-            'country'     : {{customer_address.country | json}},
-            'phone'       : {{customer_address.phone | json}},
-            'totalOrders' : {{customer.orders_count | json}},
-            'totalSpent'  : {{customer.total_spent | money_without_currency | remove: "," | json}}
-        },
-        {% else %}
-        'logState' : "Logged Out",
-        {% endif %}
-        {% endif %}
-        'firstLog'      : firstLog,
-        'customerEmail' : {{customer.email | json}},
-        'timestamp'     : Date().replace(/\(.*?\)/g,''),  
-        {% if customer.orders_count > 2 %}
-        'customerType'       : 'Returning',
-        'customerTypeNumber' : '0',
-        {% else %}
-        'customerType'       : 'New',
-        'customerTypeNumber' :'1', 
-        {% endif %}
-        'shippingInfo' : {
-            'fullName'  : {{checkout.shipping_address.name | json}},
-            'firstName' : {{checkout.shipping_address.first_name | json}},
-            'lastName'  : {{checkout.shipping_address.last_name | json}},
-            'address1'  : {{checkout.shipping_address.address1 | json}},
-            'address2'  : {{checkout.shipping_address.address2 | json}},
-            'street'    : {{checkout.shipping_address.street | json}},
-            'city'      : {{checkout.shipping_address.city | json}},
-            'province'  : {{checkout.shipping_address.province | json}},
-            'zip'       : {{checkout.shipping_address.zip | json}},
-            'country'   : {{checkout.shipping_address.country | json}},
-            'phone'     : {{checkout.shipping_address.phone | json}},
-        },
-        'billingInfo' : {
-            'fullName'  : {{checkout.billing_address.name | json}},
-            'firstName' : {{checkout.billing_address.first_name | json}},
-            'lastName'  : {{checkout.billing_address.last_name | json}},
-            'address1'  : {{checkout.billing_address.address1 | json}},
-            'address2'  : {{checkout.billing_address.address2 | json}},
-            'street'    : {{checkout.billing_address.street | json}},
-            'city'      : {{checkout.billing_address.city | json}},
-            'province'  : {{checkout.billing_address.province | json}},
-            'zip'       : {{checkout.billing_address.zip | json}},
-            'country'   : {{checkout.billing_address.country | json}},
-            'phone'     : {{checkout.billing_address.phone | json}},
-        },
-        'checkoutEmail' : {{checkout.email | json}},
-        'currency'      : {{shop.currency | json}},
-        'pageType'      : 'Log State',
-        'event'         : 'logState'
-    }
+    /**
+    * DATALAYER: 404 Pages
+    * Fire on 404 Pages */
+    {% if template contains '404' %}
+        dataLayer.push({
+            'event': '404',
+            'page': window.location.pathname
+        });
+    {% endif %}
 
-  dataLayer.push(logState);
+    /**
+    * DATALAYER: Blog Articles
+    * Fire on Blog Article Pages */
+    {% if template contains 'article' %}
+    dataLayer.push({
+        'author': {{ article.author | json }},
+        'title': {{ article.title | json }},
+        'dateCreated': {{ article.created_at | json }},
+        'pageType': 'Blog',
+        'event': 'blog'
+    });
+    {% endif %}
 
-  /** 
-  * DATALAYER: Homepage */
+    /** DATALAYER: Product List Page (Collections, Category)
+    * Fire on all product listing pages. */
+    {% if template contains 'collection' %}
+        var ecommerce = {
+            'items': [
+                {% for product in collection.products %}{
+                    'item_id'        : {{product.id | json}},
+                    'item_variant'    : {{product.selected_variant.title | json}},
+                    'item_name'      : {{product.title | json}},
+                    'price'           : {{product.price | money_without_currency | replace: ',', '.' | json}},
+                    'item_brand'      : {{product.vendor | json}},
+                    'item_category'   : {{product.type | json}},
+                    'item_list_name'  : {{collection.title | json}},
+                    'imageURL'        : "https:{{product.featured_image.src|img_url:'grande'}}",
+                    'productURL'      : '{{shop.secure_url}}{{product.url}}',
+                    'sku'             : {{product.selected_variant.sku | json}},
+                },
+                {% endfor %}]
+            };
+        dataLayer.push({
+            'productList' : {{collection.title | json}},
+            'pageType'    : 'Collection',
+            'event'       : 'view_item_list',
+            ecommerce
+        });
+    {% endif %}
 
-  if (document.location.pathname == "/") {
-      dataLayer.push({ 
-          'pageType': 'Homepage', 
-          'event': 'homepage', 
-          logState
-      });
-  }
-
-  /** 
-  * DATALAYER: 404 Pages
-  * Fire on 404 Pages */
-  {% if template contains '404' %}
-      dataLayer.push({ 
-          'event': '404', 
-          'page': window.location.pathname 
-      });
-  {% endif %}
-
-  /** 
-  * DATALAYER: Blog Articles
-  * Fire on Blog Article Pages */
-  {% if template contains 'article' %}
-  dataLayer.push({
-      'author': {{ article.author | json }},
-      'title': {{ article.title | json }},
-      'dateCreated': {{ article.created_at | json }},
-      'pageType': 'Blog',
-      'event': 'blog'
-  });
-  {% endif %}
-
-  /** DATALAYER: Product List Page (Collections, Category)
-  * Fire on all product listing pages. */
-  {% if template contains 'collection' %}
-      var ecommerce = {
-          'items': [
-              {% for product in collection.products %}{
-                  'item_id'        : {{product.id | json}},                  
-                  'item_variant'    : {{product.selected_variant.title | json}},             
+      /** DATALAYER: Product Page
+      * Fire on all Product View pages. */
+      {% if template contains 'product' %}
+          var ecommerce = {
+              'items': [{
+                  'item_id'        : {{product.id | json}},
+                  'item_variant'    : {{product.selected_variant.title | json}},
                   'item_name'      : {{product.title | json}},
                   'price'           : {{product.price | money_without_currency | replace: ',', '.' | json}},
                   'item_brand'      : {{product.vendor | json}},
                   'item_category'   : {{product.type | json}},
                   'item_list_name'  : {{collection.title | json}},
-                  'imageURL'        : "https:{{product.featured_image.src|img_url:'grande'}}", 
-                  'productURL'      : '{{shop.secure_url}}{{product.url}}',
-                  'sku'             : {{product.selected_variant.sku | json}},
-              },
-              {% endfor %}]
-          };  
-      dataLayer.push({
-          'productList' : {{collection.title | json}},
-          'pageType'    : 'Collection',
-          'event'       : 'view_item_list',
-          ecommerce
-      });
-  {% endif %}
+                  'description'     : {{product.description | strip_newlines | strip_html | json}},
+                  'imageURL'        : 'https:{{product.featured_image.src|img_url:'grande'}}',
+                  'productURL'      : '{{product.url}}'
+              }]
+          };
+          dataLayer.push({
+              'pageType' : 'Product',
+              'event'    : 'view_item',
+              ecommerce
+          });
 
-    /** DATALAYER: Product Page
-    * Fire on all Product View pages. */
-    {% if template contains 'product' %}  
+          selectorClickCallback(__DL__.cartTriggers, function () {
+              dataLayer.push({ 'event': 'add_to_cart', ecommerce });
+          });
+      {% endif %}
+
+    /** DATALAYER: Cart View
+    * Fire anytime a user views their cart (non-dynamic) */
+    {% if template contains 'cart' %}
         var ecommerce = {
-            'items': [{
-                'item_id'        : {{product.id | json}},  
-                'item_variant'    : {{product.selected_variant.title | json}},             
+            'currency': {{cart.currency.iso_code | json}},
+            'value': {{cart.total_price | divided_by: 100.0 | json}},
+            'items':[{% for line_item in cart.items %}{
+                'item_id'        : {{line_item.product.id | json}},
+                'item_variant'    : {{line_item.variant.title | json}},
+                'item_name'      : {{line_item.product.title | json}},
+                'price'           : {{line_item.product.price | money_without_currency | replace: ',', '.' | json}},
+                'item_brand'      : {{line_item.product.vendor | json}},
+                'item_category'   : {{line_item.product.type | json}},
+                'item_list_name'  : {{line_item.collection.title | json}},
+                'quantity'        : {{line_item.quantity | json}},
+                'discount'        : {{discount.code | json}}
+            },{% endfor %}],
+        };
+        dataLayer.push({
+            'pageType' : 'Cart',
+            'event'    : 'view_cart',
+            ecommerce
+        });
+    {% endif %}
+
+    /** DATALAYER: Search Results */
+    var searchPage = new RegExp(__DL__.searchPage, "g");
+    if(document.location.pathname.match(searchPage)){
+        var ecommerce = {
+            items :[{% for product in search.results %}{
+                'item_id'        : {{product.id | json}},
+                'item_variant'    : {{product.variant.title | json}},
                 'item_name'      : {{product.title | json}},
                 'price'           : {{product.price | money_without_currency | replace: ',', '.' | json}},
                 'item_brand'      : {{product.vendor | json}},
                 'item_category'   : {{product.type | json}},
-                'item_list_name'  : {{collection.title | json}},
-                'description'     : {{product.description | strip_newlines | strip_html | json}},
-                'imageURL'        : 'https:{{product.featured_image.src|img_url:'grande'}}', 
-                'productURL'      : '{{product.url}}'
-            }]
-        };               
+                'item_list_name'  : {{product.collection.title | json}},
+            },{% endfor %}],
+        };
         dataLayer.push({
-            'pageType' : 'Product',
-            'event'    : 'view_item',
+            'pageType'   : "Search",
+            'search_term' : __DL__.searchTermQuery,
+            'event'      : "search",
+            'item_list_name'  : {{line_item.collection.title | json}},
             ecommerce
         });
+    }
 
-        selectorClickCallback(__DL__.cartTriggers, function () {
-            dataLayer.push({ 'event': 'add_to_cart', ecommerce });
-        });            
+    /** DATALAYER: Remove From Cart **/
+    {% if template contains 'cart' %}
+        var ecommerce = {
+            'items':[{% for line_item in cart.items %}{
+                'item_id'        : {{line_item.product.id | json}},
+                'item_variant'    : {{line_item.variant.title | json}},
+                'item_name'      : {{line_item.product.title | json}},
+                'price'           : {{line_item.product.price | money_without_currency | replace: ',', '.' | json}},
+                'item_brand'      : {{line_item.product.vendor | json}},
+                'item_category'   : {{line_item.product.type | json}},
+                'item_list_name'  : {{line_item.collection.title | json}},
+                'quantity'        : {{line_item.quantity | json}},
+                'discount'        : {{discount.code | json}}
+            },{% endfor %}],
+        };
+        function removeChartEvent(){
+           dataLayer.push({
+                'pageType'   : "Remove from cart",
+                'event' : 'remove_from_cart',
+                ecommerce
+            });
+        }
+        function recursiveFindNode(node, count){
+          if(node){
+            var targetHref = node.href;
+            if(targetHref && targetHref.includes(__DL__.removeCartTrigger)){
+              removeChartEvent();
+            } else {
+              if(node.parentNode && count <= 2){
+                recursiveFindNode(node.parentNode, count + 1)
+              }
+            }
+          }
+        }
+        // event for remove cart
+        // component will rerender and remove event listener, so i use event delegation to solve.
+        document.addEventListener('click', function(event){
+          var count = 0;
+          recursiveFindNode(event.target, count);
+        })
     {% endif %}
 
-  /** DATALAYER: Cart View
-  * Fire anytime a user views their cart (non-dynamic) */
-  {% if template contains 'cart' %}
-      var ecommerce = {
-          'currency': {{cart.currency.iso_code | json}},
-          'value': {{cart.total_price | divided_by: 100.0 | json}},
-          'items':[{% for line_item in cart.items %}{
-              'item_id'        : {{line_item.product.id | json}},                  
-              'item_variant'    : {{line_item.variant.title | json}},             
-              'item_name'      : {{line_item.product.title | json}},
-              'price'           : {{line_item.product.price | money_without_currency | replace: ',', '.' | json}},
-              'item_brand'      : {{line_item.product.vendor | json}},
-              'item_category'   : {{line_item.product.type | json}},
-              'item_list_name'  : {{line_item.collection.title | json}},
-              'quantity'        : {{line_item.quantity | json}},
-              'discount'        : {{discount.code | json}}
-          },{% endfor %}],
-      };
-      dataLayer.push({
-          'pageType' : 'Cart',
-          'event'    : 'view_cart',
-          ecommerce
-      });
-  {% endif %}
-
-  /** DATALAYER: Search Results */
-  var searchPage = new RegExp(__DL__.searchPage, "g");
-  if(document.location.pathname.match(searchPage)){
-      var ecommerce = {
-          items :[{% for product in search.results %}{
-              'item_id'        : {{product.id | json}},                  
-              'item_variant'    : {{product.variant.title | json}},             
-              'item_name'      : {{product.title | json}},
-              'price'           : {{product.price | money_without_currency | replace: ',', '.' | json}},
-              'item_brand'      : {{product.vendor | json}},
-              'item_category'   : {{product.type | json}},
-              'item_list_name'  : {{product.collection.title | json}},
-          },{% endfor %}],
-      };
-      dataLayer.push({
-          'pageType'   : "Search",
-          'search_term' : __DL__.searchTermQuery,                                       
-          'event'      : "search",
-          'item_list_name'  : {{line_item.collection.title | json}},
-          ecommerce
-      });    
-  }
-
-  /** DATALAYER: Remove From Cart **/
-  {% if template contains 'cart' %}
-      var ecommerce = {
-          'items':[{% for line_item in cart.items %}{
-              'item_id'        : {{line_item.product.id | json}},                  
-              'item_variant'    : {{line_item.variant.title | json}},             
-              'item_name'      : {{line_item.product.title | json}},
-              'price'           : {{line_item.product.price | money_without_currency | replace: ',', '.' | json}},
-              'item_brand'      : {{line_item.product.vendor | json}},
-              'item_category'   : {{line_item.product.type | json}},
-              'item_list_name'  : {{line_item.collection.title | json}},
-              'quantity'        : {{line_item.quantity | json}},
-              'discount'        : {{discount.code | json}}
-          },{% endfor %}],
-      };
-      
-      selectorClickCallback(__DL__.removeCartTrigger, function () {
-        dataLayer.push({ 
-            'pageType': "Remove from cart",
-            'event': 'remove_from_cart', 
-            ecommerce 
-        });
-      });               
-  {% endif %}
-
-  if (gtmCode) {
-    /** Google Tag Manager **/
-    (function (w, d, s, l, i) {
-      w[l] = w[l] || [];
-      w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-      var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != 'dataLayer'
-          ? '&l=' + l
-          : '';
-      j.async = true;
-      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', gtmCode);
-  }
-})();
+    if (gtmCode) {
+      /** Google Tag Manager **/
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != 'dataLayer'
+            ? '&l=' + l
+            : '';
+        j.async = true;
+        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, 'script', 'dataLayer', gtmCode);
+    }
+  })();
 </script>
